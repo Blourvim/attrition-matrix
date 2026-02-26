@@ -10,4 +10,4 @@ sea-orm = { version = "2.0.0-rc", features = ["sqlx-sqlite", "macros","runtime-t
 tokio = { version = "1.49.0", features = ["rt-multi-thread", "macros"] }
 
 [workspace]
-members = [ ".", "entity"]
+members = [ ".", "entity", "frontend"]

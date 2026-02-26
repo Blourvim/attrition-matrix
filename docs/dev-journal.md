@@ -15,5 +15,6 @@ I have restructured the folder structure to better allign with a development san
 [ ] handle rendering
     * howering over the fields should highlight rows and columns
     * howers could also show some app names and or logos
+    - I chose to use rust for webassembly for the frontend since it should fit nicely with the rest of the codebase
 
 [ ]optimize
