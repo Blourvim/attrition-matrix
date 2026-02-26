@@ -4,3 +4,10 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+dotenv = "0.15.0"
+entity = { path = "./entity" }
+sea-orm = { version = "2.0.0-rc", features = ["sqlx-sqlite", "macros","runtime-tokio"] }
+tokio = { version = "1.49.0", features = ["rt-multi-thread", "macros"] }
+
+[workspace]
+members = [ ".", "entity"]
