@@ -10,7 +10,7 @@ pub struct Model {
     pub app_id: i64,
     #[sea_orm(primary_key, auto_increment = false)]
     pub sdk_id: i64,
-    pub installed: Option<bool>,
+    pub installed: bool,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
