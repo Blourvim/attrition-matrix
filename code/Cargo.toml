@@ -4,6 +4,7 @@ name = "product-eng-interview"
 version = "0.1.0"
 
 [dependencies]
+actix-web = "4.13.0"
 dotenv = "0.15.0"
 
 [dependencies.entity]

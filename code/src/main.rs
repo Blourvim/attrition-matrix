@@ -1,6 +1,7 @@
+use actix_web::{App, HttpServer};
 use dotenv;
-use tokio;
-#[tokio::main]
+use product_eng_interview::api::api::{hello, index};
+#[actix_web::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
     // the main objective here is to compare one dataset to the next,
@@ -13,5 +14,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // compare both on which sdk's they use
     // if the successor has sdk's which are 0 turned to 1, that sdk gets +1 points
     // it is also possible that an app has multiple sdk's installed, and may have more installed without actually losing any market share
+    HttpServer::new(|| App::new().service(index).service(hello))
+        .bind(("0.0.0.0", 3001))?
+        .run()
+        .await?;
     Ok(())
 }
