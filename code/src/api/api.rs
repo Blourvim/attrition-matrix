@@ -10,10 +10,7 @@ use actix_web::{
 
 #[get("/")]
 pub async fn index() -> impl Responder {
-    // todo: this should fail in startup instead
-    let index_content =
-        fs::read_to_string("./frontend/src/public/index.html").expect("missing index");
-    Html::new(index_content)
+    format!("Hello {}!", 1)
 }
 
 #[get("/{name}")]

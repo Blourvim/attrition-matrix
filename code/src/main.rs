@@ -1,3 +1,4 @@
+use actix_files::Files;
 use actix_web::{App, HttpServer};
 use dotenv;
 use product_eng_interview::api::api::{hello, index};
@@ -14,9 +15,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // compare both on which sdk's they use
     // if the successor has sdk's which are 0 turned to 1, that sdk gets +1 points
     // it is also possible that an app has multiple sdk's installed, and may have more installed without actually losing any market share
-    HttpServer::new(|| App::new().service(index).service(hello))
-        .bind(("0.0.0.0", 3001))?
-        .run()
-        .await?;
+    HttpServer::new(|| {
+        App::new().service(Files::new("./frontend/src/public", ".").prefer_utf8(true))
+    })
+    .bind(("0.0.0.0", 3001))?
+    .run()
+    .await?;
     Ok(())
 }
