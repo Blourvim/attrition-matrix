@@ -1,212 +1,69 @@
-<!---------------------------------------->
-
-<!-- THIS FILE IS PARTIALLY AI GENERATED-->
-
-<!---------------------------------------->
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SDK Transition Matrix</title>
-    <style>
-        :root {
-            --bg-0: #f7fbff;
-            --bg-low: #deebf7;
-            --bg-mid: #6baed6;
-            --bg-high: #2171b5;
-            --bg-max: #08306b;
-            --border: #cccccc;
-        }
+    <title>Document</title>
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px;
-            background-color: #fff;
-            color: #000;
-        }
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
+    <!-- have a button POST a click via AJAX -->
 
-        /* Form Styling */
-        .control-panel {
-            margin-bottom: 50px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background: #fafafa;
-            display: flex;
-            gap: 20px;
-            align-items: flex-end;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        label {
-            font-size: 12px;
-            font-weight: bold;
-            color: #666;
-        }
-
-        input,
-        select {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        button {
-            padding: 8px 20px;
-            background: #2171b5;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        /* Matrix Styling */
-        .matrix-container {
-            position: relative;
-            display: grid;
-            grid-template-columns: 40px repeat(4, 150px);
-            grid-template-rows: 40px repeat(4, 150px);
-        }
-
-        /* Labels */
-        .label-top {
-            grid-row: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            transform: rotate(-30deg);
-            white-space: nowrap;
-        }
-
-        .label-left {
-            grid-column: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            transform: rotate(-30deg);
-            white-space: nowrap;
-        }
-
-        /* Axis Titles */
-        .axis-title-top {
-            position: absolute;
-            top: -60px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 16px;
-        }
-
-        .axis-title-left {
-            position: absolute;
-            left: -100px;
-            top: 50%;
-            transform: translateY(-50%) rotate(-90deg);
-            font-size: 16px;
-        }
-
-        /* Cells */
-        .cell {
-            border: 0.5px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-
-        /* Heatmap Colors */
-        .lv-0 {
-            background-color: var(--bg-0);
-        }
-
-        .lv-1 {
-            background-color: var(--bg-low);
-        }
-
-        .lv-2 {
-            background-color: var(--bg-mid);
-        }
-
-        .lv-3 {
-            background-color: var(--bg-high);
-        }
-
-        .lv-4 {
-            background-color: var(--bg-max);
-            color: white;
-        }
-    </style>
 </head>
 
 <body>
+    <form hx-post="/api/sdk_search">
+        <input type="text" placeholder="Search.." name="search">
+    </form>
+    <select name="cars" id="cars">
+        <option value="volvo">Volvo</option>
+        <option value="saab">Saab</option>
+        <option value="mercedes">Mercedes</option>
+        <option value="audi">Audi</option>
+    </select>
 
-    <div class="control-panel">
-        <div class="form-group">
-            <label>Provider</label>
-            <select>
-                <option>PayPal</option>
-                <option>Stripe</option>
-                <option>Braintree</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Metric</label>
-            <input type="text" placeholder="Conversion Rate">
-        </div>
-        <div class="form-group">
-            <label>Date Range</label>
-            <input type="date">
-        </div>
-        <button type="button">Update Heatmap</button>
-    </div>
 
-    <div id="main-matrix-container" class="matrix-container">
-        <div class="axis-title-top">To SDK</div>
-        <div class="axis-title-left">From SDK</div>
 
-        <div></div>
-        <div class="label-top" style="grid-column: 2">PayPal</div>
-        <div class="label-top" style="grid-column: 3">Stripe</div>
-        <div class="label-top" style="grid-column: 4">Braintree</div>
-        <div class="label-top" style="grid-column: 5">(none)</div>
+    <table border="1" cellpadding="0" cellspacing="0" style="border-collapse: collapse" width="60%">
 
-        <div class="label-left">PayPal</div>
-        <div class="cell lv-1">19%</div>
-        <div class="cell lv-0">0%</div>
-        <div class="cell lv-0">6%</div>
-        <div class="cell lv-3">75%</div>
+        <tr>
+            <td class="table-cell">&nbsp;</td>
+            <td class="table-cell">&nbsp;</td>
+            <td class="table-cell">&nbsp;</td>
+            <td class="table-cell">&nbsp;</td>
+        </tr>
+        <tr>
+            <td class="table-cell">&nbsp;</td>
+            <td class="table-cell">&nbsp;</td>
+            <td class="table-cell">&nbsp;</td>
+            <td class="table-cell">&nbsp;</td>
+        </tr>
+        <tr>
+            <td class="table-cell">&nbsp;</td>
+            <td class="table-cell">&nbsp;</td>
+            <td class="table-cell">&nbsp;</td>
+            <td class="table-cell">&nbsp;</td>
+        </tr>
+        <tr>
+            <td class="table-cell">&nbsp;</td>
+            <td class="table-cell">&nbsp;</td>
+            <td class="table-cell">&nbsp;</td>
+            <td class="table-cell">&nbsp;</td>
+        </tr>
+        <tr>
+            <td class="table-cell">&nbsp;</td>
+            <td class="table-cell">&nbsp;</td>
+            <td class="table-cell">&nbsp;</td>
+            <td class="table-cell">&nbsp;</td>
+        </tr>
 
-        <div class="label-left">Stripe</div>
-        <div class="cell lv-0">0%</div>
-        <div class="cell lv-2">56%</div>
-        <div class="cell lv-0">0%</div>
-        <div class="cell lv-2" style="opacity: 0.8;">43%</div>
+    </table>
 
-        <div class="label-left">Braintree</div>
-        <div class="cell lv-0">0%</div>
-        <div class="cell lv-0">0%</div>
-        <div class="cell lv-2">58%</div>
-        <div class="cell lv-2" style="opacity: 0.8;">42%</div>
-
-        <div class="label-left">(none)</div>
-        <div class="cell lv-0">1%</div>
-        <div class="cell lv-0">1%</div>
-        <div class="cell lv-0">1%</div>
-        <div class="cell lv-4">97%</div>
-    </div>
-
+    <style>
+        .table-cell {
+            height: 100px;
+        }
+    </style>
 </body>
 
 </html>

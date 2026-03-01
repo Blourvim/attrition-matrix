@@ -1,19 +1,29 @@
-use std::{
-    fs,
-    path::{self, Path},
+use actix_web::{HttpResponse, Responder, post, web};
+
+use crate::api::dto::{
+    matrix::{AttritionMatrixQuery, AttritionMatrixResponse},
+    sdk_search::SdkSearchResponse,
 };
 
-use actix_web::{
-    App, HttpServer, Responder, get,
-    web::{self, Html},
-};
-
-#[get("/")]
-pub async fn index() -> impl Responder {
-    format!("Hello {}!", 1)
+async fn get_matrix(attrition_matrix_query: web::Query<AttritionMatrixQuery>) -> impl Responder {
+    let query = attrition_matrix_query.into_inner();
+    // now per requested sdk, we can calculate and fetch
+    let response = AttritionMatrixResponse {};
+    HttpResponse::Ok().json(response)
 }
 
-#[get("/{name}")]
-pub async fn hello(name: web::Path<String>) -> impl Responder {
-    format!("Hello {}!", &name)
+async fn search_sdk() -> impl Responder {
+    let response: SdkSearchResponse = SdkSearchResponse { sdks: Vec::new() };
+    HttpResponse::Ok().json(response)
+}
+
+async fn get_example_apps() -> impl Responder {
+    let response: SdkSearchResponse = SdkSearchResponse { sdks: Vec::new() };
+    HttpResponse::Ok().json(response)
+}
+pub fn api_scope() -> actix_web::Scope {
+    web::scope("/api")
+        .route("/search_sdk", web::get().to(search_sdk))
+        .route("/get_matrix", web::get().to(get_matrix))
+        .route("/get_example_apps", web::get().to(get_example_apps))
 }

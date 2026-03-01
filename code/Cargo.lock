@@ -2017,6 +2017,8 @@ dependencies = [
  "dotenv",
  "entity",
  "sea-orm",
+ "serde",
+ "serde_json",
  "tokio",
 ]
 
