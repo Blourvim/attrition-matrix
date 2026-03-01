@@ -58,6 +58,7 @@ This version makes more sense now, since my initial model was assuming that the 
     * howers could also show some app names and or logos
     - I chose to use rust for webassembly for the frontend since it should fit nicely with the rest of the codebase
     - Initially I chose webassembly, but since then I have reazlied that there isn't a big need to utizile much webassembly, I will still keep it in the project, since it is not detrimental, and it may acome in handy, if renders of bigger matrixes are needed, or for some reason there is data to be processed locally instead of the server.
+    *By using htmx , I can respond in html snippets, while using the rust type checker in generating those snippets. Otherwise I would have had to create an openapi spec, then generate a frontend sdk using that spec, for a project this size, htmx is a solid alternative
 
 
 [ ]optimize

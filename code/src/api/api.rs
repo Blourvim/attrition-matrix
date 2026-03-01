@@ -1,8 +1,8 @@
-use actix_web::{HttpResponse, Responder, post, web};
+use actix_web::{HttpResponse, Responder, web};
 
 use crate::api::dto::{
     matrix::{AttritionMatrixQuery, AttritionMatrixResponse},
-    sdk_search::SdkSearchResponse,
+    sdk_search::{self, SdkSearchQuery, SdkSearchResponse},
 };
 
 async fn get_matrix(attrition_matrix_query: web::Query<AttritionMatrixQuery>) -> impl Responder {
@@ -12,9 +12,22 @@ async fn get_matrix(attrition_matrix_query: web::Query<AttritionMatrixQuery>) ->
     HttpResponse::Ok().json(response)
 }
 
-async fn search_sdk() -> impl Responder {
-    let response: SdkSearchResponse = SdkSearchResponse { sdks: Vec::new() };
-    HttpResponse::Ok().json(response)
+async fn search_sdk(search_query: web::Query<SdkSearchQuery>) -> impl Responder {
+    let mock_sdks = (0..5)
+        .into_iter()
+        .map(|i| sdk_search::Sdk {
+            name: search_query.search.clone(),
+            id: i,
+            logo_url: "https://picsum.photos/200".to_string(),
+        })
+        .collect::<Vec<sdk_search::Sdk>>();
+
+    let html_response = mock_sdks
+        .iter()
+        .map(|sdk| format!("<option value=\"{}\">{}</option>", sdk.id, sdk.name))
+        .collect::<String>();
+
+    HttpResponse::Ok().body(html_response)
 }
 
 async fn get_example_apps() -> impl Responder {
@@ -23,7 +36,7 @@ async fn get_example_apps() -> impl Responder {
 }
 pub fn api_scope() -> actix_web::Scope {
     web::scope("/api")
-        .route("/search_sdk", web::get().to(search_sdk))
+        .route("/sdk_search", web::get().to(search_sdk))
         .route("/get_matrix", web::get().to(get_matrix))
         .route("/get_example_apps", web::get().to(get_example_apps))
 }

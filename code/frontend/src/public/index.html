@@ -7,19 +7,15 @@
     <title>Document</title>
 
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
-    <!-- have a button POST a click via AJAX -->
 
 </head>
 
 <body>
     <form hx-post="/api/sdk_search">
-        <input type="text" placeholder="Search.." name="search">
+        <input type="text" placeholder="Search.." name="search" placeholder="Search..." hx-get="/api/sdk_search"
+            hx-swap="innerHTML" hx-target="#sdk_results" hx-trigger="keyup changed delay:300ms">
     </form>
-    <select name="cars" id="cars">
-        <option value="volvo">Volvo</option>
-        <option value="saab">Saab</option>
-        <option value="mercedes">Mercedes</option>
-        <option value="audi">Audi</option>
+    <select name="sdk_results" id="sdk_results">
     </select>
 
 
