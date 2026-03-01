@@ -1,6 +1,7 @@
 use actix_web::{HttpResponse, Responder, web};
 
 use crate::api::dto::{
+    example_apps,
     matrix::{AttritionMatrixQuery, AttritionMatrixResponse},
     sdk_search::{self, SdkSearchQuery, SdkSearchResponse},
 };
@@ -30,13 +31,17 @@ async fn search_sdk(search_query: web::Query<SdkSearchQuery>) -> impl Responder 
     HttpResponse::Ok().body(html_response)
 }
 
-async fn get_example_apps() -> impl Responder {
-    let response: SdkSearchResponse = SdkSearchResponse { sdks: Vec::new() };
-    HttpResponse::Ok().json(response)
+async fn get_example_apps(
+    search_query: web::Query<example_apps::ExampleAppsQuery>,
+) -> impl Responder {
+    let example_apps: example_apps::ExampleApps = example_apps::ExampleApps::new(5);
+
+    let html_response = example_apps.to_html();
+    HttpResponse::Ok().body(html_response)
 }
 pub fn api_scope() -> actix_web::Scope {
     web::scope("/api")
         .route("/sdk_search", web::get().to(search_sdk))
-        .route("/get_matrix", web::get().to(get_matrix))
-        .route("/get_example_apps", web::get().to(get_example_apps))
+        .route("/matrix", web::get().to(get_matrix))
+        .route("/example_apps", web::get().to(get_example_apps))
 }
