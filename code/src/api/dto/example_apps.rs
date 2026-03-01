@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 pub struct ExampleApps {
     apps: Vec<App>,
@@ -12,10 +12,9 @@ pub struct App {
 
 impl ExampleApps {
     //mock for now
-    pub fn new(amount: usize) -> Self {
+    pub fn new(sdk_id: i64) -> Self {
         ExampleApps {
-            apps: (0..amount)
-                .into_iter()
+            apps: (0..sdk_id)
                 .map(|i| App {
                     name: "test".to_string(),
                     id: i as i64,
