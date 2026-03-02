@@ -1,15 +1,7 @@
 use std::collections::HashMap;
-#[derive(Eq, Hash, PartialEq)]
-enum Status {
-    // Retention and attrition are the primary statues to be rendered on the matrix
-    Retention(i64),
-    // Attrition(HashMap<i64, i64>),
-    // these are secondary, which won't be rendered, but we may want to represent them regardless at a later date
-    //Addition,
-    //MissingSuccessor,
-    //MissingPast,
-    //RemovedWithoutReplacement,
-}
+
+use entity::intermidiate;
+use sea_orm::{ActiveModelTrait, ActiveValue::Set, DatabaseConnection};
 
 pub struct ChurnAndRetentionData {
     pub sdk_id: i64,
@@ -26,7 +18,9 @@ impl CurnAndRetentionMap {
         &mut self,
         baseline: HashMap<i64, &entity::app_sdk::Model>,
         successor: HashMap<i64, &entity::app_sdk::Model>,
-    ) -> Vec<i64> {
+        db: &DatabaseConnection,
+    ) -> () {
+        // todo: this should maybe return a pointer to a database
         for (sdk_id_baseline, app_sdk_baseline) in &baseline {
             // we first need to check that if data for both points exists, if not we skip it for now since there is no data,
             // todo : record this irregularity
@@ -40,33 +34,31 @@ impl CurnAndRetentionMap {
             match (app_sdk_baseline.installed, successor_app_sdk.installed) {
                 // this is a signal of retention
                 (true, true) => {
-                    //todo: dry duplicate work
-                    match self.map.get_mut(sdk_id_baseline) {
-                        Some(val) => val.retention += 1,
-                        None => {
-                            self.map.insert(
-                                *sdk_id_baseline,
-                                ChurnAndRetentionData {
-                                    sdk_id: *sdk_id_baseline,
-                                    retention: 1,
-                                    churn: HashMap::new(),
-                                },
-                            );
-                        }
-                    }
+                    let active_model = intermidiate::ActiveModel {
+                        from_sdk: Set(sdk_id_baseline.to_owned()),
+                        to_sdk: Set(successor_app_sdk.sdk_id),
+                        ..Default::default()
+                    };
+                    let _ = active_model.save(db);
                 }
+
                 (true, false) => {
-                    todo!("this is attrition")
+                    let active_model = intermidiate::ActiveModel {
+                        from_sdk: Set(sdk_id_baseline.to_owned()),
+                        to_sdk: Set(successor_app_sdk.sdk_id),
+                        ..Default::default()
+                    };
+                    let _ = active_model.save(db);
                 }
                 (false, true) => {
                     // this will already be processed when processing the sdk which gained,
                     //since it requires a  mirroring (true,false) match
                     // todo: handling it here could help with performance
-                    todo!("this is addition")
+                    // for now, skip
+                    continue;
                 }
                 (false, false) => continue,
             }
         }
-        todo!()
     }
 }
