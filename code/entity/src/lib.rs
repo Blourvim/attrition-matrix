@@ -4,4 +4,5 @@ pub mod prelude;
 
 pub mod app;
 pub mod app_sdk;
+pub mod intermidiate;
 pub mod sdk;

@@ -34,6 +34,10 @@ if 1-1-1-0 0-0-0-1 A=>D,B=>D,C=>D
 
 This version makes more sense now, since my initial model was assuming that the app could have had an sdk we were unable to detect, which was the "none" in the image, however I  realize that I was wrong in that. None is simply data that the user chose not to display, perhaps the keyword "other" is better here.
 
+I have found another solution on paper, I am going to needto create an intermidiate layer, and do my calculations exclusively from this layer.
+Once this intermidiate layer is calculated, then I can use this as sort of a cache, and use it as a way to take back the potential memory consumption, sinceI can  create this intermidiate layer using only the app-sdk per app id
+
+(data 1 x data 2) => get sdk usage of app 1 =>intermidiate layer, where it defines events,   app 1 left  A for B => user requests => data is fetched from the intermidiate layer. I don't think this is the best solution, but I feel confident that it will function and reasonably scale. This is under the assumption that a single app will not implement millions or billions of sdk changes between 2 data points
 
 
 ## todo & ideation
