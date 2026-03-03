@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::diff_engine::intermediate::IntermidiateAggragates;
+
 pub struct AttritionMatrixResponse {
     pub matrix: Vec<Vec<Sdk>>,
 }
@@ -35,14 +37,6 @@ impl Sdk {
 }
 
 impl AttritionMatrixResponse {
-    pub fn new(amount: usize) -> Self {
-        Self {
-            matrix: (0..amount)
-                .map(|y| (0..amount).map(|x| Sdk::new()).collect())
-                .collect(),
-        }
-    }
-
     pub fn to_html(&self) -> String {
         self.matrix
             .iter()

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use entity::intermediate;
 use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
@@ -36,13 +36,19 @@ pub async fn fetch_intermidiate_layer(
 }
 
 impl IntermidiateAggragates {
-    pub fn new(mut self, data: Vec<intermediate::Model>) -> Self {
+    pub fn new(data: &Vec<intermediate::Model>) -> Self {
+        let mut intermidiate_aggragates = IntermidiateAggragates {
+            sdk_usages: HashMap::new(),
+        };
+
         for element in data {
-            let entry = self.sdk_usages.entry((element.from_sdk, element.to_sdk));
+            let entry = intermidiate_aggragates
+                .sdk_usages
+                .entry((element.from_sdk, element.to_sdk));
 
             match entry {
                 std::collections::hash_map::Entry::Occupied(mut occupied_entry) => {
-                    occupied_entry.into_mut().app_count += 1;
+                    occupied_entry.get_mut().app_count += 1;
                 }
                 std::collections::hash_map::Entry::Vacant(vacant_entry) => {
                     vacant_entry.insert(SdkUsageCount {
@@ -53,6 +59,31 @@ impl IntermidiateAggragates {
                 }
             }
         }
-        return self;
+        return intermidiate_aggragates;
+    }
+
+    pub fn to_html(&self) -> String {
+        // hashset here as a simple way to remove duplicates without itertools
+
+        // todo: actually these two sets are duplicates, I could rework this into a two pointer system
+        let to_sdk_set: HashSet<i64> = self.sdk_usages.iter().map(|f| f.0.1).collect();
+
+        let from_sdk_set: HashSet<i64> = self.sdk_usages.iter().map(|f| f.0.0).collect();
+        let mut html: String = Default::default();
+        &to_sdk_set.iter().for_each(|to| {
+            let mut row: String = Default::default();
+            row.push_str("<tr>");
+            from_sdk_set.iter().for_each(|from| {
+                let value = self
+                    .sdk_usages
+                    .get_key_value(&(from.clone(), to.clone()))
+                    .unwrap();
+                let col = format!("<td>{}</td>", value.1.app_count);
+                row.push_str(&col);
+            });
+            html.push_str(&row);
+            row.push_str("</tr>");
+        });
+        todo!()
     }
 }

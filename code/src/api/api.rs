@@ -1,16 +1,28 @@
 use actix_web::{HttpResponse, Responder, web};
+use sea_orm::DatabaseConnection;
 
-use crate::api::dto::{
-    example_apps,
-    matrix::{AttritionMatrixQuery, AttritionMatrixResponse},
-    sdk_search::{SdkSearchQuery, SdkSearchResponse},
+use crate::{
+    api::dto::{
+        example_apps,
+        matrix::AttritionMatrixQuery,
+        sdk_search::{SdkSearchQuery, SdkSearchResponse},
+    },
+    diff_engine::intermediate::{IntermidiateAggragates, fetch_intermidiate_layer},
 };
 
-async fn get_matrix(attrition_matrix_query: web::Query<AttritionMatrixQuery>) -> impl Responder {
+async fn get_matrix(
+    attrition_matrix_query: web::Query<AttritionMatrixQuery>,
+    conn: web::Data<DatabaseConnection>,
+) -> Result<impl Responder, Box<dyn std::error::Error>> {
     let query = attrition_matrix_query.into_inner();
     // now per requested sdk, we can calculate and fetch
-    let response: AttritionMatrixResponse = AttritionMatrixResponse::new(5);
-    HttpResponse::Ok().body(response.to_html())
+
+    let intermediate_layer = fetch_intermidiate_layer(query.sdks, &conn).await?;
+
+    let intermidiate_aggragates = IntermidiateAggragates::new(&intermediate_layer);
+
+    let html = intermidiate_aggragates.to_html();
+    return Ok(HttpResponse::Ok().body(html));
 }
 
 async fn search_sdk(search_query: web::Query<SdkSearchQuery>) -> impl Responder {
