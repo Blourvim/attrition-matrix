@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use entity::intermidiate;
+use entity::intermediate;
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, DatabaseConnection};
 
 pub struct ChurnAndRetentionData {
@@ -34,7 +34,7 @@ impl CurnAndRetentionMap {
             match (app_sdk_baseline.installed, successor_app_sdk.installed) {
                 // this is a signal of retention
                 (true, true) => {
-                    let active_model = intermidiate::ActiveModel {
+                    let active_model = intermediate::ActiveModel {
                         from_sdk: Set(sdk_id_baseline.to_owned()),
                         to_sdk: Set(successor_app_sdk.sdk_id),
                         ..Default::default()
@@ -43,7 +43,7 @@ impl CurnAndRetentionMap {
                 }
 
                 (true, false) => {
-                    let active_model = intermidiate::ActiveModel {
+                    let active_model = intermediate::ActiveModel {
                         from_sdk: Set(sdk_id_baseline.to_owned()),
                         to_sdk: Set(successor_app_sdk.sdk_id),
                         ..Default::default()
