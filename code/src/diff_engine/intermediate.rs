@@ -70,7 +70,7 @@ impl IntermidiateAggragates {
 
         let from_sdk_set: HashSet<i64> = self.sdk_usages.iter().map(|f| f.0.0).collect();
         let mut html: String = Default::default();
-        &to_sdk_set.iter().for_each(|to| {
+        let _ = &to_sdk_set.iter().for_each(|to| {
             let mut row: String = Default::default();
             row.push_str("<tr>");
             from_sdk_set.iter().for_each(|from| {
@@ -84,6 +84,7 @@ impl IntermidiateAggragates {
             html.push_str(&row);
             row.push_str("</tr>");
         });
-        todo!()
+
+        html
     }
 }
