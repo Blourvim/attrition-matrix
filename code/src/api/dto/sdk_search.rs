@@ -24,19 +24,20 @@ impl Sdk {
     pub fn to_html(&self) -> String {
         format!(
             "<option 
-        hx-get=\"/api/example_apps\"
+            id={},
+        hx-get=\"/api/matrix\"
         hx-trigger=\"click\" 
         hx-swap=\"innerHTML\" 
         hx-target=\"#matrix\" 
-        hx-vals='js:{{ sdk_id: 1}}' 
+        hx-vals='js:{{ sdks:[...sdk_ids,this.id] }}' 
         value={}>{}</option>",
-            self.id, self.name
+            self.id, self.id, self.name
         )
     }
 }
 impl SdkSearchResponse {
     pub fn new(search: String) -> Self {
-        let sdks: Vec<Sdk> = (0..5)
+        let sdks: Vec<Sdk> = (0..2)
             .map(|f| {
                 Sdk::new(
                     search.clone(),
