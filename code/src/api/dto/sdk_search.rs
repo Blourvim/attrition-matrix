@@ -29,7 +29,7 @@ impl Sdk {
         hx-trigger=\"click\" 
         hx-swap=\"innerHTML\" 
         hx-target=\"#matrix\" 
-        hx-vals='js:{{ sdks:[...sdk_ids,this.id] }}' 
+        hx-vals='js:{{ sdks:[1,2,3,4] }}' 
         value={}>{}</option>",
             self.id, self.id, self.name
         )

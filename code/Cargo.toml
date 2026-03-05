@@ -13,6 +13,9 @@ serde_json = "1.0.149"
 [dependencies.entity]
 path = "./entity"
 
+[dependencies.migration]
+path = "./migration"
+
 [dependencies.sea-orm]
 version = "2.0.0-rc"
 features = [
@@ -32,5 +35,5 @@ features = [
 members = [
     ".",
     "entity",
-    "frontend",
+    "frontend", "migration",
 ]

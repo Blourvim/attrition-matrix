@@ -1,6 +1,7 @@
 use actix_files::Files;
 use actix_web::{App, HttpServer, web};
 use dotenv;
+use migration::MigratorTrait;
 use product_eng_interview::api::api::api_scope;
 use sea_orm::{ConnectOptions, Database};
 #[actix_web::main]
@@ -17,6 +18,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await
         .expect("failed to initiate initer_db");
 
+    //populate inter_db
+    migration::Migrator::up(&inter_db, None)
+        .await
+        .expect("failed to migrate");
     HttpServer::new(move || {
         App::new()
             .service(api_scope())
