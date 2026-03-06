@@ -14,8 +14,7 @@ pub struct CurnAndRetentionMap {
 // this assumes that both baseline and successor are divided up by the app_id
 // this determines a single point of data for each sdk per ap. To increment or decrement
 impl CurnAndRetentionMap {
-    fn calculate_churns_and_retentions(
-        &mut self,
+    pub async fn calculate_churns_and_retentions(
         baseline: HashMap<i64, &entity::app_sdk::Model>,
         successor: HashMap<i64, &entity::app_sdk::Model>,
         db: &DatabaseConnection,
@@ -39,7 +38,7 @@ impl CurnAndRetentionMap {
                         to_sdk: Set(successor_app_sdk.sdk_id),
                         ..Default::default()
                     };
-                    let _ = active_model.save(db);
+                    let _esponse = active_model.save(db).await;
                 }
 
                 (true, false) => {
@@ -48,7 +47,7 @@ impl CurnAndRetentionMap {
                         to_sdk: Set(successor_app_sdk.sdk_id),
                         ..Default::default()
                     };
-                    let _ = active_model.save(db);
+                    let _ = active_model.save(db).await;
                 }
                 (false, true) => {
                     // this will already be processed when processing the sdk which gained,

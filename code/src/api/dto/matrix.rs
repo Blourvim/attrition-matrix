@@ -79,6 +79,7 @@ fn vector_query_parser(query: &str) -> Result<Vec<i64>, Box<dyn std::error::Erro
     let split_query: Vec<i64> = query
         .split("&")
         .filter(|s| s.starts_with("sdks="))
+        .filter(|s| s.strip_prefix("sdks=").unwrap().parse::<i64>().is_ok())
         .map(|s| s.strip_prefix("sdks=").unwrap().parse::<i64>().unwrap())
         .collect();
 

@@ -1,7 +1,7 @@
 use std::io::Write;
 
 use actix_web::{HttpResponse, Responder, web};
-use sea_orm::DatabaseConnection;
+use sea_orm::{DatabaseConnection, DbConn};
 
 use crate::{
     api::dto::{
@@ -9,6 +9,7 @@ use crate::{
         matrix::AttritionMatrixQuery,
         sdk_search::{SdkSearchQuery, SdkSearchResponse},
     },
+    data::selector::{DbSelector, get_db},
     diff_engine::intermediate::{IntermidiateAggragates, fetch_intermidiate_layer},
 };
 
@@ -28,8 +29,13 @@ async fn get_matrix(
     return Ok(HttpResponse::Ok().body(html));
 }
 
-async fn search_sdk(search_query: web::Query<SdkSearchQuery>) -> impl Responder {
-    let html_response = SdkSearchResponse::new(search_query.into_inner().search).to_html();
+async fn search_sdk(
+    search_query: web::Query<SdkSearchQuery>,
+    // conn: web::Data<DatabaseConnection>,
+) -> impl Responder {
+    let conn = get_db(DbSelector::Baseline).await;
+    let search = search_query.into_inner().search;
+    let html_response = SdkSearchResponse::new(search, &conn).await.to_html();
     HttpResponse::Ok().body(html_response)
 }
 
@@ -41,6 +47,7 @@ async fn get_example_apps(
     let example_apps: example_apps::ExampleApps = example_apps::ExampleApps::new(query.sdk_id);
 
     let html_response = example_apps.to_html();
+
     HttpResponse::Ok().body(html_response)
 }
 pub fn api_scope() -> actix_web::Scope {

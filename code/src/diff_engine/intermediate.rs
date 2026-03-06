@@ -25,7 +25,7 @@ pub async fn fetch_intermidiate_layer(
         .all(db)
         .await?;
 
-    // todo: this is for the "none" calculation implement this later since calculations are done slightly,
+    // todo: this is for the "none" calculation implement this later since calculations are  slightly different
     let none_response: Vec<intermediate::Model> = intermediate::Entity::find()
         .filter(intermediate::Column::FromSdk.is_in(skds.clone()))
         .filter(intermediate::Column::ToSdk.is_not_in(skds.clone()))
@@ -70,21 +70,41 @@ impl IntermidiateAggragates {
 
         let from_sdk_set: HashSet<i64> = self.sdk_usages.iter().map(|f| f.0.0).collect();
         let mut html: String = Default::default();
+        let tags_start = "<div id=\"sdk-tags\" class=\"tags\">";
+        html.push_str(tags_start);
+
+        let tags: String = from_sdk_set
+            .iter()
+            .map(|f| format!("<span  class=\"tag\" >{}</span>", f))
+            .collect();
+        html.push_str(&tags);
+
+        let tags_end = "</div>";
+        html.push_str(tags_end);
+        let table_start = "    <table id=\"matrix\" border=\"1\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-collapse: collapse\" width=\"60%\">";
+        html.push_str(table_start);
+
         let _ = &to_sdk_set.iter().for_each(|to| {
             let mut row: String = Default::default();
-            row.push_str("<tr>");
+            row.push_str("<tr class=\"row\">");
             from_sdk_set.iter().for_each(|from| {
-                let value = self
-                    .sdk_usages
-                    .get_key_value(&(from.clone(), to.clone()))
-                    .unwrap();
-                let col = format!("<td>{}</td>", value.1.app_count);
-                row.push_str(&col);
+                let value = self.sdk_usages.get_key_value(&(from.clone(), to.clone()));
+                if let Some(value) = value {
+                    let col = format!("<td class=\"cell\">{}</td>", value.1.app_count);
+                    row.push_str(&col);
+                } else {
+                    // oops weird handling here, this could be cleaner,
+                    // This "value" may not exist when attrition between sdk's is 0
+                    // this entry is only created when attrition exists
+                    let col = format!("<td class=\"cell\">{}</td>", 0);
+                    row.push_str(&col);
+                }
             });
             html.push_str(&row);
             row.push_str("</tr>");
         });
-
+        let table_end = "</table>";
+        html.push_str(table_end);
         html
     }
 }

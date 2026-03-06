@@ -16,34 +16,30 @@
         <input type="text" placeholder="Search.." name="search" placeholder="Search..." hx-get="/api/sdk_search"
             hx-swap="innerHTML" hx-target="#sdk_results" hx-trigger="keyup changed delay:300ms">
     </form>
+
     <select name="sdk_results" id="sdk_results">
     </select>
-
-
+    <div id="matrix-area"></div>
 
     <table id="matrix" border="1" cellpadding="0" cellspacing="0" style="border-collapse: collapse" width="60%">
-
-        <tr>
-            <td id=1 hx-get="/api/example_apps" hx-trigger="mouseenter" hx-swap="innerHTML" hx-target="this"
-                hx-vals='js:{ sdk_id: this.id }'>
-                class="table-cell">&nbsp;</td>
-            <td id=2 hx-get="/api/example_apps" hx-trigger="mouseenter" hx-swap="innerHTML" hx-target="this"
-                hx-vals='js:{ sdk_id: this.id }'>
-                class="table-cell">&nbsp;</td>
-            <td id=3 hx-get="/api/example_apps" hx-trigger="mouseenter" hx-swap="innerHTML" hx-target="this"
-                hx-vals='js:{ sdk_id: this.id }'>
-                class="table-cell">&nbsp;</td>
-            <td id=4 hx-get="/api/example_apps" hx-trigger="mouseenter" hx-swap="innerHTML" hx-target="this"
-                hx-vals='js:{ sdk_id: this.id }'>
-                class="table-cell">&nbsp;</td>
-        </tr>
-
 
     </table>
 
     <style>
         .table-cell {
             height: 100px;
+        }
+
+        .tags {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tag {
+            background: #e5e7eb;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 14px;
         }
     </style>
 </body>

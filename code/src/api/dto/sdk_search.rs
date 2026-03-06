@@ -1,3 +1,4 @@
+use sea_orm::{ColumnTrait, DbConn, EntityOrSelect, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize)]
@@ -24,30 +25,40 @@ impl Sdk {
     pub fn to_html(&self) -> String {
         format!(
             "<option 
+        onclick=\"add_sdk({})\"
             id={},
         hx-get=\"/api/matrix\"
         hx-trigger=\"click\" 
         hx-swap=\"innerHTML\" 
-        hx-target=\"#matrix\" 
-        hx-vals='js:{{ sdks:[1,2,3,4] }}' 
-        value={}>{}</option>",
-            self.id, self.id, self.name
+        hx-target=\"#matrix-area\" 
+        hx-vals='js:{{ sdks:sdks }}' 
+        value={}>{}
+        </option>",
+            self.id, self.id, self.id, self.name,
         )
     }
 }
 impl SdkSearchResponse {
-    pub fn new(search: String) -> Self {
-        let sdks: Vec<Sdk> = (0..2)
-            .map(|f| {
-                Sdk::new(
-                    search.clone(),
-                    f,
-                    "https://picsum.photos/200/300".to_string(),
-                )
-            })
-            .collect();
-
-        Self { sdks }
+    pub async fn new(search: String, db: &sea_orm::DatabaseConnection) -> Self {
+        let sdks_response = entity::sdk::Entity::find()
+            .filter(entity::sdk::Column::Name.contains(search))
+            .all(db)
+            .await;
+        if let Ok(sdks) = sdks_response {
+            let sdks: Vec<Sdk> = sdks
+                .iter()
+                .map(|f| {
+                    Sdk::new(
+                        f.name.clone().unwrap(),
+                        f.id,
+                        f.url.clone().unwrap_or_default(),
+                    )
+                })
+                .collect();
+            return SdkSearchResponse { sdks };
+        } else {
+            return SdkSearchResponse { sdks: vec![] };
+        }
     }
     pub fn to_html(&self) -> String {
         self.sdks
