@@ -26,7 +26,7 @@ impl Sdk {
         format!(
             "<option 
         onclick=\"add_sdk({})\"
-            id={},
+        id={},
         hx-get=\"/api/matrix\"
         hx-trigger=\"click\" 
         hx-swap=\"innerHTML\" 

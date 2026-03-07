@@ -9,7 +9,7 @@ use product_eng_interview::{
     data::selector::{DbSelector, get_db},
     diff_engine::engine::CurnAndRetentionMap,
 };
-use sea_orm::{ColumnTrait, ConnectOptions, Database, EntityTrait, PaginatorTrait, QueryFilter};
+use sea_orm::{ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter};
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();

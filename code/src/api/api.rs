@@ -25,7 +25,7 @@ async fn get_matrix(
 
     let intermidiate_aggragates = IntermidiateAggragates::new(&intermediate_layer);
 
-    let html = intermidiate_aggragates.to_html();
+    let html = intermidiate_aggragates.to_html().await;
     return Ok(HttpResponse::Ok().body(html));
 }
 
