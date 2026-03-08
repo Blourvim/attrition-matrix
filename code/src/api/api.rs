@@ -1,7 +1,7 @@
 use std::io::Write;
 
 use actix_web::{HttpResponse, Responder, web};
-use sea_orm::{DatabaseConnection, DbConn};
+use sea_orm::DatabaseConnection;
 
 use crate::{
     api::dto::{
@@ -10,7 +10,7 @@ use crate::{
         sdk_search::{SdkSearchQuery, SdkSearchResponse},
     },
     data::selector::{DbSelector, get_db},
-    diff_engine::intermediate::{IntermidiateAggragates, fetch_intermidiate_layer},
+    diff_engine::intermediate::IntermediateAggragates,
 };
 
 async fn get_matrix(
@@ -20,12 +20,10 @@ async fn get_matrix(
     let query = attrition_matrix_query;
     print!("{:?}", query.sdks);
     std::io::stdout().flush().unwrap();
-    // now per requested sdk, we can calculate and fetch
-    let intermediate_layer = fetch_intermidiate_layer(query.sdks, &conn).await?;
 
-    let intermidiate_aggragates = IntermidiateAggragates::new(&intermediate_layer);
+    let intermediate_aggragates = IntermediateAggragates::new(&query.sdks, &conn);
 
-    let html = intermidiate_aggragates.to_html().await;
+    let html = intermediate_aggragates.await.to_html().await;
     return Ok(HttpResponse::Ok().body(html));
 }
 

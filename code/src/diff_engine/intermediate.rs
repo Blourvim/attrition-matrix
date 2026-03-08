@@ -1,69 +1,79 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    io::Write,
+};
 
 use entity::intermediate;
-use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
+use sea_orm::{
+    ColumnTrait, DatabaseConnection, EntityTrait, FromQueryResult, QueryFilter, Statement, Value,
+};
 
 use crate::data::selector::get_db;
 
-pub struct IntermidiateAggragates {
-    pub sdk_usages: HashMap<(i64, i64), SdkUsageCount>,
-}
-
-#[derive(Debug)]
-pub struct SdkUsageCount {
+#[derive(Debug, FromQueryResult)]
+pub struct IntermediateAggragate {
     pub sdk_from_id: i64,
     pub sdk_to_id: i64,
     pub app_count: i64,
 }
 
-pub async fn fetch_intermidiate_layer(
-    skds: Vec<i64>,
-    db: &DatabaseConnection,
-) -> Result<Vec<intermediate::Model>, Box<dyn std::error::Error>> {
-    let response: Vec<intermediate::Model> = intermediate::Entity::find()
-        .filter(intermediate::Column::FromSdk.is_in(skds.clone()))
-        .filter(intermediate::Column::ToSdk.is_in(skds.clone()))
-        .order_by_id(sea_orm::Order::Desc)
-        .all(db)
-        .await?;
-
-    // todo: this is for the "none" calculation implement this later since calculations are  slightly different
-    let none_response: Vec<intermediate::Model> = intermediate::Entity::find()
-        .filter(intermediate::Column::FromSdk.is_in(skds.clone()))
-        .filter(intermediate::Column::ToSdk.is_not_in(skds.clone()))
-        .all(db)
-        .await?;
-
-    Ok(response)
+pub struct IntermediateSdk {
+    pub id: i64,
+    pub name: String,
 }
 
-impl IntermidiateAggragates {
-    pub fn new(data: &Vec<intermediate::Model>) -> Self {
-        let mut intermidiate_aggragates = IntermidiateAggragates {
-            sdk_usages: HashMap::new(),
-        };
+pub struct IntermediateAggragates {
+    pub sdk_usages: HashMap<(i64, i64), IntermediateAggragate>,
+}
 
-        for element in data {
-            let entry = intermidiate_aggragates
-                .sdk_usages
-                .entry((element.from_sdk, element.to_sdk));
+impl IntermediateAggragates {
+    pub async fn new(sdk_ids: &Vec<i64>, db: &DatabaseConnection) -> IntermediateAggragates {
+        let placeholders: Vec<String> = (1..=sdk_ids.len()).map(|i| format!("${}", i)).collect();
+        let in_clause = placeholders.join(", ");
 
-            match entry {
-                std::collections::hash_map::Entry::Occupied(mut occupied_entry) => {
-                    occupied_entry.get_mut().app_count += 1;
-                }
-                std::collections::hash_map::Entry::Vacant(vacant_entry) => {
-                    vacant_entry.insert(SdkUsageCount {
-                        sdk_from_id: element.from_sdk,
-                        sdk_to_id: element.to_sdk,
-                        app_count: 1,
-                    });
-                }
-            }
+        let sql = format!(
+            r#"SELECT COUNT(*) AS app_count, from_sdk AS sdk_from_id, to_sdk AS sdk_to_id
+            FROM "intermediate"
+            WHERE from_sdk IN({in_clause})
+            AND to_sdk IN({in_clause})
+            GROUP BY from_sdk, to_sdk"#,
+        );
+
+        let values: Vec<Value> = sdk_ids.iter().map(|f| Value::BigInt(Some(*f))).collect();
+        let statement = Statement::from_sql_and_values(db.get_database_backend(), &sql, values);
+        let int_response = IntermediateAggragate::find_by_statement(statement)
+            .all(db)
+            .await;
+        println!("{:? }", int_response);
+        std::io::stdout().flush().unwrap();
+        if let Ok(val) = int_response {
+            let mut intermediate_aggragates: IntermediateAggragates = IntermediateAggragates {
+                sdk_usages: HashMap::new(),
+            };
+
+            val.iter().for_each(|f| {
+                intermediate_aggragates.sdk_usages.insert(
+                    (f.sdk_from_id, f.sdk_to_id),
+                    IntermediateAggragate {
+                        app_count: f.app_count,
+                        sdk_from_id: f.sdk_from_id,
+                        sdk_to_id: f.sdk_to_id,
+                    },
+                );
+            });
+            return intermediate_aggragates;
+        } else {
+            let intermediate_aggragates: IntermediateAggragates = IntermediateAggragates {
+                sdk_usages: HashMap::new(),
+            };
+            println!("no results");
+            std::io::stdout().flush().unwrap();
+            return intermediate_aggragates;
         }
-        return intermidiate_aggragates;
     }
+}
 
+impl IntermediateAggragates {
     pub async fn to_html(&self) -> String {
         let sdk_set: HashSet<i64> = self.sdk_usages.iter().map(|f| f.0.0).collect();
 
@@ -128,10 +138,9 @@ impl IntermidiateAggragates {
                     row.push_str(&col);
                 }
             });
-            row.push_str("</tr>");
+            row.push_str(table_header_end);
             html.push_str(&row);
         });
-        let table_end = "</table>";
         html.push_str(table_end);
         html
     }
