@@ -40,6 +40,9 @@ Once this intermidiate layer is calculated, then I can use this as sort of a cac
 (data 1 x data 2) => get sdk usage of app 1 =>intermidiate layer, where it defines events,   app 1 left  A for B => user requests => data is fetched from the intermidiate layer. I don't think this is the best solution, but I feel confident that it will function and reasonably scale. This is under the assumption that a single app will not implement millions or billions of sdk changes between 2 data points
 
 
+
+
+
 ## todo & ideation
 
 [x] using seaorm genereate the types
@@ -48,13 +51,13 @@ Once this intermidiate layer is calculated, then I can use this as sort of a cac
     * in app_sdk table, there is no installed is NULL ,so I am going to relieve it from the option 
     * it looks like seaorm generation may have not been perfect, I should have double checked, might need to revise
 
-[ ] Implement differential engine
+[*] Implement differential engine
     - This is basically calculating and rendering diffs based on 2 datasets
     
 [ ] data should be accesible via the data folder, in production data would ideally be stored in an immutable data store,
     * I could add data upload for convinience
     * As a shortcut for assignment purpouses, I can make the db file permissions read only rather than implement a object store
-[ ] genereate filters for sdks
+[*] genereate filters for sdks
     * implement a simple debounce filter field to get a list of fitting sdk's 
         * I could consider alternate solutions here to accomodate high quantities of data
 [ ] handle rendering
@@ -70,3 +73,9 @@ Once this intermidiate layer is calculated, then I can use this as sort of a cac
 [ ] consider fault tolerance
     * Could certain amount of inaccuracy be tolerated ?
     * I should recheck my code, and handle faults more gracefully
+
+[ ] "Stripe has 10,572 apps currently using their SDK (of the sampled apps)
+PayPal has 11,892 apps currently using their SDK"
+"
+ currently using means I should have that none => 1 = A=>A, simple change
+

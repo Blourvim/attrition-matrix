@@ -3,7 +3,7 @@ use std::{
     io::Write,
 };
 
-use entity::intermediate;
+use entity::{intermediate, sdk};
 use sea_orm::{
     ColumnTrait, DatabaseConnection, EntityTrait, FromQueryResult, QueryFilter, Statement, Value,
 };
@@ -32,11 +32,12 @@ impl IntermediateAggragates {
         let in_clause = placeholders.join(", ");
 
         let sql = format!(
-            r#"SELECT COUNT(*) AS app_count, from_sdk AS sdk_from_id, to_sdk AS sdk_to_id
-            FROM "intermediate"
-            WHERE from_sdk IN({in_clause})
-            AND to_sdk IN({in_clause})
-            GROUP BY from_sdk, to_sdk"#,
+            r#"SELECT
+    CASE WHEN from_sdk IN ({in_clause}) THEN from_sdk ELSE 0 END AS sdk_from_id,
+    CASE WHEN to_sdk IN ({in_clause}) THEN to_sdk ELSE 0 END AS sdk_to_id,
+    COUNT(*) AS app_count
+FROM "intermediate"
+GROUP BY sdk_from_id, sdk_to_id"#,
         );
 
         let values: Vec<Value> = sdk_ids.iter().map(|f| Value::BigInt(Some(*f))).collect();
@@ -44,7 +45,7 @@ impl IntermediateAggragates {
         let int_response = IntermediateAggragate::find_by_statement(statement)
             .all(db)
             .await;
-        println!("{:? }", int_response);
+        println!("int response{:? }", int_response);
         std::io::stdout().flush().unwrap();
         if let Ok(val) = int_response {
             let mut intermediate_aggragates: IntermediateAggragates = IntermediateAggragates {
@@ -74,24 +75,85 @@ impl IntermediateAggragates {
 }
 
 impl IntermediateAggragates {
+    pub async fn get_non_listed_sdk_attrition(
+        &mut self,
+        sdk_ids: &Vec<i64>,
+        db: &DatabaseConnection,
+    ) -> IntermediateAggragates {
+        let placeholders: Vec<String> = (1..=sdk_ids.len()).map(|i| format!("${}", i)).collect();
+        let in_clause = placeholders.join(", ");
+
+        let other_to_sdk = format!(
+            r#"SELECT COUNT(*) AS app_count, from_sdk AS sdk_from_id, to_sdk AS sdk_to_id
+            FROM "intermediate"
+            WHERE from_sdk NOT IN({in_clause})
+            AND to_sdk IN({in_clause})
+            GROUP BY from_sdk, to_sdk"#,
+        );
+        let sdk_to_other = format!(
+            r#"SELECT COUNT(*) AS app_count, from_sdk AS sdk_from_id, to_sdk AS sdk_to_id
+            FROM "intermediate"
+            WHERE from_sdk IN({in_clause})
+            AND to_sdk NOT IN({in_clause})
+            GROUP BY from_sdk, to_sdk"#,
+        );
+
+        let other_to_other = format!(
+            r#"SELECT COUNT(*) AS app_count, from_sdk AS sdk_from_id, to_sdk AS sdk_to_id
+            FROM "intermediate"
+            WHERE from_sdk NOT IN({in_clause})
+            AND to_sdk NOT IN({in_clause})
+            GROUP BY from_sdk, to_sdk"#,
+        );
+
+        let values: Vec<Value> = sdk_ids.iter().map(|f| Value::BigInt(Some(*f))).collect();
+        let statement =
+            Statement::from_sql_and_values(db.get_database_backend(), &other_to_other, values);
+        let int_response = IntermediateAggragate::find_by_statement(statement)
+            .all(db)
+            .await;
+        println!("{:? }", int_response);
+        std::io::stdout().flush().unwrap();
+
+        //
+        todo!()
+    }
+}
+impl IntermediateAggragates {
     pub async fn to_html(&self) -> String {
         let sdk_set: HashSet<i64> = self.sdk_usages.iter().map(|f| f.0.0).collect();
 
         let db = get_db(crate::data::selector::DbSelector::Successor).await;
-        let sdks = entity::sdk::Entity::find()
+        let mut sdks: Vec<entity::sdk::Model> = entity::sdk::Entity::find()
             .filter(entity::sdk::Column::Id.is_in(sdk_set))
             .all(&db)
             .await
             .unwrap();
-        let mut html: String = Default::default();
 
+        let mut html: String = Default::default();
+        // ---------insert the none field-----------
+
+        let none_sdk: entity::sdk::Model = sdk::Model {
+            id: 0,
+            // I think this should be named "other" instead of "none", but I am sticking to the spec
+            name: Some("(none)".to_string()),
+            slug: Some("none".to_string()),
+            url: Some("none".to_string()),
+            description: Some("not included in the query".to_string()),
+        };
+        sdks.push(none_sdk);
         // ---------TAGS-----------
         let tags_start = "<div id=\"sdk-tags\" class=\"tags\">";
         html.push_str(tags_start);
 
         let tags: String = sdks
             .iter()
-            .map(|f| format!("<span  class=\"tag\" >{}</span>", f.name.as_ref().unwrap()))
+            .map(|f| {
+                format!(
+                    "<span  class=\"tag\" >{}</span>",
+                    f.name.as_ref().unwrap_or(&"none".to_string())
+                )
+            })
             .collect();
         html.push_str(&tags);
 
@@ -123,7 +185,10 @@ impl IntermediateAggragates {
             let mut row: String = Default::default();
 
             row.push_str("<tr class=\"row\">");
-            let col = format!("<td class=\"cell\">{}</td>", sdk.name.as_ref().unwrap());
+            let col = format!(
+                "<td class=\"cell\">{}</td>",
+                sdk.name.as_ref().unwrap_or(&"none".to_string())
+            );
             row.push_str(&col);
             sdks.iter().for_each(|to| {
                 let value = self.sdk_usages.get_key_value(&(sdk.id, to.id));
