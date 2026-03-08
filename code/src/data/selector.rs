@@ -21,7 +21,9 @@ pub async fn get_db(db_selection: DbSelector) -> DbConn {
         }
         DbSelector::Intermediate => {
             let intermediate_db_url = std::env::var("INTERMEDIATE_DB_URL").unwrap();
-            let opt = ConnectOptions::new(intermediate_db_url);
+            let mut opt = ConnectOptions::new(intermediate_db_url);
+            // this is so that the in memory db is consistent otherwise we may connect to an empty in memory db
+            opt.max_connections(1);
             opt
         }
     };
