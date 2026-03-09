@@ -16,6 +16,6 @@ Some personal notes and thinking process is located [here](docs/dev-journal.md)
 
 # Known bugs and limitations:
 
-Longer sessions causes in memory "intermediate" sqlitedb to drop, resulting in data going missing.
+- Longer sessions causes in memory "intermediate" sqlitedb to drop, resulting in data going missing.
 
-Hovering over cells to get the example apps is unimplemented
+- Hovering over cells to get the example apps is unimplemented
