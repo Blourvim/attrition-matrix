@@ -42,12 +42,21 @@ impl CurnAndRetentionMap {
                 }
 
                 (true, false) => {
-                    let active_model = intermediate::ActiveModel {
-                        from_sdk: Set(sdk_id_baseline.to_owned()),
-                        to_sdk: Set(successor_app_sdk.sdk_id),
-                        ..Default::default()
-                    };
-                    let _ = active_model.save(db).await;
+                    // The app lost this sdk now we can find that Find which sdks it gained
+                    // and record an intermediate record to each of them.
+                    for (sdk_id_successor, successor_model) in &successor {
+                        let was_installed_in_baseline = baseline
+                            .get(sdk_id_successor)
+                            .map_or(false, |b| b.installed);
+                        if successor_model.installed && !was_installed_in_baseline {
+                            let active_model = intermediate::ActiveModel {
+                                from_sdk: Set(sdk_id_baseline.to_owned()),
+                                to_sdk: Set(*sdk_id_successor),
+                                ..Default::default()
+                            };
+                            let _ = active_model.save(db).await;
+                        }
+                    }
                 }
                 (false, true) => {
                     // this will already be processed when processing the sdk which gained,
