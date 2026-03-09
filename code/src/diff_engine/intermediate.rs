@@ -148,9 +148,17 @@ impl IntermediateAggragates {
             sdks.iter().for_each(|to| {
                 let value = self.sdk_usages.get_key_value(&(sdk.id, to.id));
                 if let Some(value) = value {
+                    let total:i64 = sdks.iter().map(|f|{
+                        match self.sdk_usages.get_key_value(&(sdk.id, f.id)){
+                            Some(val) => val.1.app_count,
+                            None => 0,
+                        }
+                    }).sum();
                     let col = format!(
-                        "<td style=\" background-color:hsl(207, {}%, 50%)\" class=\"cell\">{}</td>",
-                        50, value.1.app_count
+                        "<td style=\" background-color:hsl(207, {}%, 50%)\" class=\"cell\">{}%</td>",
+                        ( (value.1.app_count * 100) /total), 
+                        ( (value.1.app_count * 100) /total) 
+                    
                     );
                     row.push_str(&col);
                 } else {
@@ -158,7 +166,7 @@ impl IntermediateAggragates {
                     // This "value" may not exist when attrition between sdk's is 0
                     // this entry is only created when attrition exists
                     let col = format!(
-                        "<td style=\" background-color:hsl(207, {}%, 50%)\" class=\"cell\">{}</td>",
+                        "<td style=\" background-color:hsl(207, {}%, 50%)\" class=\"cell\">{}%</td>",
                         0, 0,
                     );
                     row.push_str(&col);
