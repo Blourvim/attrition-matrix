@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, io::Write};
 
 use actix_files::Files;
 use actix_web::{App, HttpServer, web};
@@ -19,7 +19,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let baseline_db = get_db(DbSelector::Baseline).await;
     let successor_db = get_db(DbSelector::Successor).await;
 
-    //populate inter_db
+    println!("-------------------------Populating DB might take a while-------------------");
+    std::io::stdout().flush().unwrap();
     migration::Migrator::up(&inter_db, None)
         .await
         .expect("failed to migrate");
@@ -55,6 +56,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await;
     }
 
+    println!("-------------------------Server started-------------------");
+    std::io::stdout().flush().unwrap();
     HttpServer::new(move || {
         App::new()
             .service(api_scope())
