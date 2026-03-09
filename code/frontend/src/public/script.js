@@ -1,13 +1,14 @@
-let sdks = [33, 125, 25];
+var sdks = [];
 
 const add_sdk = (sdk_id) => {
     sdks.push(sdk_id);
-    update_tags()
 }
 
 
 const remove_sdk = (sdk_id) => {
-    sdks.remove(sdk_id);
-    update_tags()
+    const index = sdks.indexOf(sdk_id);
+    if (index > -1) {
+        sdks.splice(index, 1);
+    }
+    return [...sdks]
 }
-

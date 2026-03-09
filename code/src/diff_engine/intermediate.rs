@@ -105,8 +105,15 @@ impl IntermediateAggragates {
             .iter()
             .map(|f| {
                 format!(
-                    "<span  class=\"tag\" >{}</span>",
-                    f.name.as_ref().unwrap_or(&"none".to_string())
+                    "<button 
+                      hx-get=\"/api/matrix\"
+                      hx-trigger=\"click\" 
+                      hx-swap=\"innerHTML\" 
+                      hx-target=\"#matrix-area\" 
+                      hx-vals='js:{{ sdks:remove_sdk({}) }}' 
+                      class=\"tag\" >{}</button>",
+                    f.id,
+                    f.name.as_ref().unwrap_or(&"none".to_string()),
                 )
             })
             .collect();
