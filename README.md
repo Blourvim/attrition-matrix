@@ -1,6 +1,6 @@
 # To build:
 
-Replace the test [sqlite file](code/data/data-02.db) 
+Replace the test [sqlite files](code/data/) 
 
 ```
 nix-build default.nix
