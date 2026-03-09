@@ -1,0 +1,35 @@
+       .table-cell {
+           height: 100px;
+       }
+
+       .tags {
+           display: flex;
+           gap: 8px;
+       }
+
+       .tag {
+           background: #e5e7eb;
+           padding: 4px 10px;
+           border-radius: 999px;
+           font-size: 14px;
+       }
+
+       td,
+       th {
+           aspect-ratio: 1 / 1;
+           width: 80px;
+           height: 80px;
+           text-align: center;
+           vertical-align: middle;
+           border: 1px solid #ddd;
+       }
+
+       #matrix {
+           width: 100%;
+       }
+
+       #search_box {
+           display: grid;
+           justify-content: center;
+           align-items: flex-end;
+       }
