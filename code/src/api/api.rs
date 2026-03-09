@@ -27,10 +27,7 @@ async fn get_matrix(
     return Ok(HttpResponse::Ok().body(html));
 }
 
-async fn search_sdk(
-    search_query: web::Query<SdkSearchQuery>,
-    // conn: web::Data<DatabaseConnection>,
-) -> impl Responder {
+async fn search_sdk(search_query: web::Query<SdkSearchQuery>) -> impl Responder {
     let conn = get_db(DbSelector::Baseline).await;
     let search = search_query.into_inner().search;
     let html_response = SdkSearchResponse::new(search, &conn).await.to_html();

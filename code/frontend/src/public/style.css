@@ -5,6 +5,7 @@
        .tags {
            display: flex;
            gap: 8px;
+           margin-bottom: 1em;
        }
 
        .tag {

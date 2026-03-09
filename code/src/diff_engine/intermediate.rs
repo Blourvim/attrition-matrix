@@ -75,51 +75,6 @@ GROUP BY sdk_from_id, sdk_to_id"#,
 }
 
 impl IntermediateAggragates {
-    pub async fn get_non_listed_sdk_attrition(
-        &mut self,
-        sdk_ids: &Vec<i64>,
-        db: &DatabaseConnection,
-    ) -> IntermediateAggragates {
-        let placeholders: Vec<String> = (1..=sdk_ids.len()).map(|i| format!("${}", i)).collect();
-        let in_clause = placeholders.join(", ");
-
-        let other_to_sdk = format!(
-            r#"SELECT COUNT(*) AS app_count, from_sdk AS sdk_from_id, to_sdk AS sdk_to_id
-            FROM "intermediate"
-            WHERE from_sdk NOT IN({in_clause})
-            AND to_sdk IN({in_clause})
-            GROUP BY from_sdk, to_sdk"#,
-        );
-        let sdk_to_other = format!(
-            r#"SELECT COUNT(*) AS app_count, from_sdk AS sdk_from_id, to_sdk AS sdk_to_id
-            FROM "intermediate"
-            WHERE from_sdk IN({in_clause})
-            AND to_sdk NOT IN({in_clause})
-            GROUP BY from_sdk, to_sdk"#,
-        );
-
-        let other_to_other = format!(
-            r#"SELECT COUNT(*) AS app_count, from_sdk AS sdk_from_id, to_sdk AS sdk_to_id
-            FROM "intermediate"
-            WHERE from_sdk NOT IN({in_clause})
-            AND to_sdk NOT IN({in_clause})
-            GROUP BY from_sdk, to_sdk"#,
-        );
-
-        let values: Vec<Value> = sdk_ids.iter().map(|f| Value::BigInt(Some(*f))).collect();
-        let statement =
-            Statement::from_sql_and_values(db.get_database_backend(), &other_to_other, values);
-        let int_response = IntermediateAggragate::find_by_statement(statement)
-            .all(db)
-            .await;
-        println!("{:? }", int_response);
-        std::io::stdout().flush().unwrap();
-
-        //
-        todo!()
-    }
-}
-impl IntermediateAggragates {
     pub async fn to_html(&self) -> String {
         let sdk_set: HashSet<i64> = self.sdk_usages.iter().map(|f| f.0.0).collect();
 
@@ -193,13 +148,19 @@ impl IntermediateAggragates {
             sdks.iter().for_each(|to| {
                 let value = self.sdk_usages.get_key_value(&(sdk.id, to.id));
                 if let Some(value) = value {
-                    let col = format!("<td class=\"cell\">{}</td>", value.1.app_count);
+                    let col = format!(
+                        "<td style=\" background-color:hsl(207, {}%, 50%)\" class=\"cell\">{}</td>",
+                        50, value.1.app_count
+                    );
                     row.push_str(&col);
                 } else {
                     // oops weird handling here, this could be cleaner,
                     // This "value" may not exist when attrition between sdk's is 0
                     // this entry is only created when attrition exists
-                    let col = format!("<td class=\"cell\">{}</td>", 0);
+                    let col = format!(
+                        "<td style=\" background-color:hsl(207, {}%, 50%)\" class=\"cell\">{}</td>",
+                        0, 0,
+                    );
                     row.push_str(&col);
                 }
             });

@@ -1,4 +1,4 @@
-use sea_orm::{ColumnTrait, DbConn, EntityOrSelect, EntityTrait, QueryFilter};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize)]
