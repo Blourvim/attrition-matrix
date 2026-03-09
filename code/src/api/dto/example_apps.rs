@@ -1,3 +1,5 @@
+// This code right now, is non-functional
+
 use serde::Deserialize;
 
 pub struct ExampleApps {

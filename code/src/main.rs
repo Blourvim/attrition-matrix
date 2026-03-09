@@ -47,13 +47,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let successor_hasmap_app_sdks: HashMap<i64, &entity::app_sdk::Model> =
             successor_app_sdks.iter().map(|f| (f.sdk_id, f)).collect();
 
-        let baseline_hasmap_app_sdks_response =
-            CurnAndRetentionMap::calculate_churns_and_retentions(
-                baseline_hasmap_app_sdks,
-                successor_hasmap_app_sdks,
-                &inter_db,
-            )
-            .await;
+        let _ = CurnAndRetentionMap::calculate_churns_and_retentions(
+            baseline_hasmap_app_sdks,
+            successor_hasmap_app_sdks,
+            &inter_db,
+        )
+        .await;
     }
 
     HttpServer::new(move || {

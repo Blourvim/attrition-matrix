@@ -3,7 +3,7 @@ use std::{
     io::Write,
 };
 
-use entity::{intermediate, sdk};
+use entity::sdk;
 use sea_orm::{
     ColumnTrait, DatabaseConnection, EntityTrait, FromQueryResult, QueryFilter, Statement, Value,
 };
@@ -143,7 +143,7 @@ impl IntermediateAggragates {
 
         html.push_str(table_header_end);
 
-        let _ = &sdks.iter().enumerate().for_each(|(index, sdk)| {
+        let _ = &sdks.iter().for_each(|sdk| {
             let mut row: String = Default::default();
 
             row.push_str("<tr class=\"row\">");
